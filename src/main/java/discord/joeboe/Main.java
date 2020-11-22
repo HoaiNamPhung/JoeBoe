@@ -9,7 +9,7 @@ import org.json.simple.parser.JSONParser;
 public class Main {
 
     public static void main(String[] args) {
-        // Insert your bot's token here
+        /*
         JSONParser parser = new JSONParser();
         String token = null;
 
@@ -21,7 +21,9 @@ public class Main {
         catch (Exception e) {
         	e.printStackTrace();
         }
-
+        */
+    	
+    	String token = System.getenv("BOT_TOKEN");
         DiscordApi api = new DiscordApiBuilder().setToken(token).login().join();
         
         // Replace n-word and other slurs with fun stuff.
