@@ -12,6 +12,7 @@ public class Main {
     	
     	String token = null;
     	
+    	/*
     	// Try the local config file for the token.
         JSONParser parser = new JSONParser();
         try {     
@@ -22,10 +23,10 @@ public class Main {
         catch (Exception e) {
         	e.printStackTrace();
         }
-    	
+    	*/
         
         // Try the cloud config file for the token.
-    	//token = System.getenv("BOT_TOKEN");
+    	token = System.getenv("BOT_TOKEN");
     	
     	// Set the token.
         DiscordApi api = new DiscordApiBuilder().setToken(token).login().join();
