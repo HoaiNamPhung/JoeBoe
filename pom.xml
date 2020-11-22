@@ -62,7 +62,7 @@
                   </descriptorRefs>
                   <archive>
                       <manifest>
-                          <mainClass>Main</mainClass>
+                          <mainClass>discord.joeboe.Main</mainClass>
                       </manifest>
                   </archive>
               </configuration>
