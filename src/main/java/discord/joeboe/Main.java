@@ -3,6 +3,7 @@ package discord.joeboe;
 import java.io.FileReader;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
+import org.javacord.api.entity.user.UserStatus;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -31,10 +32,12 @@ public class Main {
     	// Set the token.
         DiscordApi api = new DiscordApiBuilder().setToken(token).login().join();
         
-        
         // Replace n-word and other slurs with fun stuff.
         ChatListener.listenToChat(api);
-       
+        
+        // Change bot's status.
+        String statusMsg = "```Use 'jb help' for some commands to try.```";
+        api.updateStatus(UserStatus.fromString(statusMsg));
         
         // Print the invite url of your bot
         final int PERMISSIONS = 825752640;
