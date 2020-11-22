@@ -1,1 +1,1 @@
-worker: java -jar joeboe/joeboe.jar
+worker: java -jar target/joeboe.jar
