@@ -59,7 +59,7 @@ public class Command {
 		int[] rolls = new int[numOfDie];
 		int total = 0;
 		for (int i = 0; i < numOfDie; i++) {
-			rolls[i] = (int) (Math.random() * numOfFaces);
+			rolls[i] = (int) (Math.random() * numOfFaces) + 1;
 			total += rolls[i];
 		}
 		
