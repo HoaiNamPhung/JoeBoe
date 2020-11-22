@@ -3,6 +3,7 @@ package discord.joeboe;
 import java.io.FileReader;
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
+import org.javacord.api.entity.activity.ActivityType;
 import org.javacord.api.entity.user.UserStatus;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -13,7 +14,6 @@ public class Main {
     	
     	String token = null;
     	
-    	/*
     	// Try the local config file for the token.
         JSONParser parser = new JSONParser();
         try {     
@@ -24,10 +24,9 @@ public class Main {
         catch (Exception e) {
         	e.printStackTrace();
         }
-    	*/
         
         // Try the cloud config file for the token.
-    	token = System.getenv("BOT_TOKEN");
+    	//token = System.getenv("BOT_TOKEN");
     	
     	// Set the token.
         DiscordApi api = new DiscordApiBuilder().setToken(token).login().join();
@@ -35,9 +34,9 @@ public class Main {
         // Replace n-word and other slurs with fun stuff.
         ChatListener.listenToChat(api);
         
-        // Change bot's status.
-        String statusMsg = "```Use 'jb help' for some commands to try.```";
-        api.updateStatus(UserStatus.fromString(statusMsg));
+        // Change bot's activity status.
+        String statusMsg = "Use 'jb help' for commands."; 
+        api.updateActivity(ActivityType.PLAYING, statusMsg);
         
         // Print the invite url of your bot
         final int PERMISSIONS = 825752640;
