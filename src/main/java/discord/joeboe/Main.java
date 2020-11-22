@@ -10,10 +10,10 @@ public class Main {
 
     public static void main(String[] args) {
     	
-        /*
+    	String token = null;
+    	
+    	// Try the local config file for the token.
         JSONParser parser = new JSONParser();
-        String token = null;
-
         try {     
             Object obj = parser.parse(new FileReader("config.json"));
             JSONObject jsonObj =  (JSONObject) obj;
@@ -22,10 +22,14 @@ public class Main {
         catch (Exception e) {
         	e.printStackTrace();
         }
-        */
     	
-    	String token = System.getenv("BOT_TOKEN");
+        
+        // Try the cloud config file for the token.
+    	//token = System.getenv("BOT_TOKEN");
+    	
+    	// Set the token.
         DiscordApi api = new DiscordApiBuilder().setToken(token).login().join();
+        
         
         // Replace n-word and other slurs with fun stuff.
         ChatListener.listenToChat(api);
