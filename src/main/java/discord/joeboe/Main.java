@@ -1,35 +1,14 @@
 package discord.joeboe;
 
-import java.io.FileReader;
 import org.javacord.api.DiscordApi;
-import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.activity.ActivityType;
-import org.javacord.api.entity.user.UserStatus;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 
 public class Main {
 
     public static void main(String[] args) {
-    	
-    	String token = null;
-    	
-    	// Try the local config file for the token.
-        JSONParser parser = new JSONParser();
-        try {     
-            Object obj = parser.parse(new FileReader("config.json"));
-            JSONObject jsonObj =  (JSONObject) obj;
-            token = (String) jsonObj.get("token");
-        }
-        catch (Exception e) {
-        	e.printStackTrace();
-        }
-        
-        // Try the cloud config file for the token.
-    	//token = System.getenv("BOT_TOKEN");
-    	
-    	// Set the token.
-        DiscordApi api = new DiscordApiBuilder().setToken(token).login().join();
+
+    	// Retrieve the API using the bot's official discord token. Retrieve the token from Heroku.
+        DiscordApi api = BotToken.getApi(BotToken.getToken(BotToken.CLOUD));
         
         // Replace n-word and other slurs with fun stuff.
         ChatListener.listenToChat(api);
