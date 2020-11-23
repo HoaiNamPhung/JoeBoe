@@ -8,7 +8,11 @@ public class Main {
     public static void main(String[] args) {
 
     	// Retrieve the API using the bot's official discord token. Retrieve the token from Heroku.
-        DiscordApi api = BotToken.getApi(BotToken.getToken(BotToken.LOCAL));
+    	String token = BotToken.getToken(BotToken.CLOUD);
+    	if (token == null) {
+    		token = BotToken.getToken(BotToken.LOCAL);
+    	}
+        DiscordApi api = BotToken.getApi(token);
 
         // Replace n-word and other slurs with fun stuff.
         ChatListener.listenToChat(api);
