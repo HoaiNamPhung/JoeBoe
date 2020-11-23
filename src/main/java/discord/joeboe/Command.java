@@ -27,7 +27,7 @@ public class Command {
 				"help\n" +
 				"roll #d#\n" +
 				"invite\n" +
-				"rm roll\n" +
+				"remove role\n" +
 				"\n" + 
 				"Make sure commands are typed in lowercase and are one space after " + TRIGGER + "```");
 	}
