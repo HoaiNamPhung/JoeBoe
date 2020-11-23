@@ -1,32 +1,129 @@
 package discord.joeboe;
 
+import java.awt.Color;
+import java.util.Arrays;
+
+import org.javacord.api.entity.message.Message;
+import org.javacord.api.entity.message.MessageAttachment;
 import org.javacord.api.entity.message.MessageAuthor;
+import org.javacord.api.entity.message.embed.EmbedBuilder;
+import org.javacord.api.entity.permission.Role;
+import org.javacord.api.entity.permission.RoleBuilder;
+import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 public class ChatFilter {
 
 	public static void replaceSlurs(MessageCreateEvent event) {
-		String msg = event.getMessageContent();
-		MessageAuthor author = event.getMessageAuthor();
-		if ((msg.contains("nigga") || msg.contains("nigger") || msg.contains("Nigga") || msg.contains("Nigger") || msg.contains("cringe") || msg.contains("Cringe")) && (author.isUser())) {
-			
-			// Replace n-word with panda. I do not condone the use of this word.
-			String newMsg = msg.replace("nigga", "panda");
-			newMsg = newMsg.replace("Nigga", "Panda");
-			newMsg = newMsg.replace("nigger", "panda");
-			newMsg = newMsg.replace("Nigger", "Panda");
+		// Get the relevant data of the event.
+		Message msg = event.getMessage();
+		String content = event.getMessageContent();
 
-			// Replace cringe with a random word.
-			String[] words1 = { "blackpilled", "frogpilled", "pewdiepilled", "redditpilled", "based", "micropilled", "coompilled", "pandapilled", "dogpilled" };
-			String[] words2 = { "darwinpilled", "junpilled", "sonampilled", "natepilled", "kadenpilled", "kanyepilled", "hoaipilled", "brianpilled", "moylanpilled", "durdlepilled" };
-			int randWordNum1 = (int) (Math.random() * words1.length);
-			int randWordNum2 = (int) (Math.random() * words2.length);
-			newMsg = newMsg.replace("cringe", words1[randWordNum1]);		
-			newMsg = newMsg.replace("Cringe", words2[randWordNum2].substring(0,1).toUpperCase() + words2[randWordNum2].substring(1));
+		// Check for filtered words.
+		String[] filteredWords = {"nigga", "nigger", "cringe", "Nigga", "Nigger", "Cringe"};
+		boolean triggered = Arrays.stream(filteredWords).anyMatch(content::contains);
+		if (triggered && msg.getAuthor().isUser()) {
+
+			// Replace filtered words with random words or panda.
+			String[] replacementWords = { "blackpilled", "frogpilled", "pewdiepilled", "redditpilled", "based", "micropilled",
+					"coompilled", "pandapilled", "dogpilled",
+					"darwinpilled", "junpilled", "sonampilled", "natepilled", "kadenpilled", "kanyepilled",
+					"hoaipilled", "brianpilled", "moylanpilled", "durdlepilled" };
+			String newContent = filterString(content, filteredWords, replacementWords);
 			
-			// Instead of editing the message with the slur, we delete it and quote it with the new filter of the word.
+			// Send the filtered message through the bot.
+			EmbedBuilder embedMsg = formatMessageAsEmbed(msg, newContent);
+			event.getChannel().sendMessage(embedMsg);
+			
+			// Send any remaining attachments that weren't sent through the embed.
+			boolean isImage = false;
+			if (msg.getAttachments().size() > 0) {
+				isImage = msg.getAttachments().get(0).isImage();
+			}
+			if (!isImage) {
+				msg.toMessageBuilder().setContent("").send(event.getChannel());
+			}
+
+			// Delete the original message. (MUST BE AFTER FILTERED MESSAGE IS FINISHED, OR
+			// WE WILL NOT ABLE TO RETRIEVE ORIGINAL MESSAGE DATA.)
 			event.getChannel().deleteMessages(event.getMessage().getId());
-			event.getChannel().sendMessage("> " + author.getDisplayName() + " said: " + newMsg);
+			
+			// Give user the "has said the n-word" role to brand them for life in shame.
+			String[] nWords = {"nigga", "nigger", "Nigga", "Nigger"};
+			boolean nTriggered = Arrays.stream(nWords).anyMatch(content::contains);
+			if (nTriggered) {
+				try {
+					Server thisServer = event.getServer().get();
+					Role newRole = new RoleBuilder(thisServer)
+							.setName("may be racist???")
+							.setColor(Color.DARK_GRAY)
+							.setMentionable(true)
+							.create().get();
+					thisServer.addRoleToUser(msg.getUserAuthor().get(), newRole);
+				}
+				catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
 		}
+	}
+
+	private static EmbedBuilder formatMessageAsEmbed(Message oldMsg, String newContent) {
+		// Get message data.
+		MessageAuthor author = oldMsg.getAuthor();
+		MessageAttachment attachment = null;
+		if (oldMsg.getAttachments().size() > 0) {
+			attachment = oldMsg.getAttachments().get(0);
+		}
+
+		// Create an embed containing the filtered contents of the deleted message.
+		EmbedBuilder embed = new EmbedBuilder()
+				.setAuthor(author)
+				.setDescription(newContent)
+				.setFooter("todo: track user 'panda' count");
+
+		// Set the embed's image to the original message's attachment image, if it exists.
+		if (attachment != null) {
+			if (attachment.isImage()) {
+				try {
+					embed.setImage(attachment.downloadAsInputStream());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		// Set the embed's border color based on the author's role color, if it exists.
+		if (author.getRoleColor().isPresent()) {
+			embed.setColor(author.getRoleColor().get());
+		}
+		
+		return embed;
+	}
+	
+	private static String filterString(String inputStr, String[] filteredWords, String[] replacementWords) {
+
+		// Check if filter triggered.
+		boolean triggered = Arrays.stream(filteredWords).anyMatch(inputStr::contains);
+		if (triggered) {
+			
+			// Generate replacement words.
+			int randIndex = (int) (Math.random() * replacementWords.length);
+			final String DEFAULT = "panda";
+			
+			// Replace words (currently hard-coded).
+			inputStr = inputStr.replace("nigga", DEFAULT)
+				.replace("Nigga", toProperNoun(DEFAULT))
+				.replace("nigger", DEFAULT)
+				.replace("Nigger", toProperNoun(DEFAULT))
+				.replace("cringe", replacementWords[randIndex])
+				.replace("Cringe", toProperNoun(replacementWords[randIndex]));
+		}
+		// Return the filtered string.
+		return inputStr;
+	}
+	
+	private static String toProperNoun(String inputStr) {
+		return inputStr.substring(0, 1).toUpperCase() + inputStr.substring(1);
 	}
 }
