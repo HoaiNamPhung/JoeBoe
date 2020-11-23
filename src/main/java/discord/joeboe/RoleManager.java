@@ -46,15 +46,25 @@ public class RoleManager {
 	 * @return Returns whether the user already has the role.
 	 */
 	public static boolean hasRole(Server server, String name, User user) {
-		for (Role role : server.getRoles()) {
+		for (Role role : user.getRoles(server)) {
 			if (role.getName().equals(name)) {
-				for (User currUser : role.getUsers()) {
-					if (currUser.equals(user)) {
-						return true;
-					}
-				}
+				return true;
 			}
 		}
 		return false;
+	}
+	
+	/**
+	 * Removes the given role from a user.
+	 * @param server The current server.
+	 * @param name The name of the role.
+	 * @param user The user we are modifying the roles of.
+	 */
+	public static void removeRole(Server server, String name, User user) {
+		for (Role role : user.getRoles(server)) {
+			if (role.getName().equals(name)) {
+				user.removeRole(role);
+			}
+		}
 	}
 }

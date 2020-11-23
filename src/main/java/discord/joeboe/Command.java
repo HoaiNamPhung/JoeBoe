@@ -3,6 +3,7 @@ package discord.joeboe;
 import java.util.Arrays;
 
 import org.javacord.api.DiscordApi;
+import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 public class Command {
@@ -26,6 +27,7 @@ public class Command {
 				"help\n" +
 				"roll #d#\n" +
 				"invite\n" +
+				"rm roll\n" +
 				"\n" + 
 				"Make sure commands are typed in lowercase and are one space after " + TRIGGER + "```");
 	}
@@ -79,5 +81,15 @@ public class Command {
         final int PERMISSIONS = 825752640;
 		event.getChannel().sendMessage("```" + "You can invite the bot by using the following url:```\n" +
 				api.createBotInvite() + PERMISSIONS);
+	}
+	
+	/**
+	 * Remove a role. This cannot be undone.
+	 * @param event The message event.
+	 * @param roleName The role being removed.
+	 */
+	public static void removeRole(MessageCreateEvent event, String roleName) {
+		User user = event.getMessageAuthor().asUser().get();
+		RoleManager.removeRole(event.getServer().get(), roleName, user);
 	}
 }

@@ -32,6 +32,17 @@ public class ChatListener {
 					if (actualMsg.equals("invite")) {
 						Command.getInvite(event, api);
 					}
+					
+					if (actualMsg.startsWith("rm role") || actualMsg.startsWith("remove role")) {
+						String roleName = "";
+						if (actualMsg.startsWith("rm role")) {
+							roleName = actualMsg.substring(8);
+						}
+						else {
+							roleName = actualMsg.substring(12);
+						}
+						Command.removeRole(event, roleName);
+					}
 				}
 			}
 		});

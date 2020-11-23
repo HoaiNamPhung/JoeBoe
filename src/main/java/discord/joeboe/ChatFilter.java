@@ -2,6 +2,7 @@ package discord.joeboe;
 
 import java.awt.Color;
 import java.util.Arrays;
+
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageAttachment;
 import org.javacord.api.entity.message.MessageAuthor;
@@ -94,6 +95,12 @@ public class ChatFilter {
 		// Set the embed's border color based on the author's role color, if it exists.
 		if (author.getRoleColor().isPresent()) {
 			embed.setColor(author.getRoleColor().get());
+		}
+		
+		// Update header to show if it's user's first time saying the n-word.
+		if (!RoleManager.hasRole(oldMsg.getServer().get(), "may be racist???", author.asUser().get())) {
+			String customEmoji = "🎊";
+			embed.setFooter(customEmoji + " " + author.getDisplayName() + " has finally said the n-word! " + customEmoji);
 		}
 		
 		return embed;
