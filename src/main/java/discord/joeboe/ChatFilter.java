@@ -2,14 +2,13 @@ package discord.joeboe;
 
 import java.awt.Color;
 import java.util.Arrays;
-
 import org.javacord.api.entity.message.Message;
 import org.javacord.api.entity.message.MessageAttachment;
 import org.javacord.api.entity.message.MessageAuthor;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.permission.Role;
-import org.javacord.api.entity.permission.RoleBuilder;
 import org.javacord.api.entity.server.Server;
+import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 public class ChatFilter {
@@ -49,17 +48,16 @@ public class ChatFilter {
 			event.getChannel().deleteMessages(event.getMessage().getId());
 			
 			// Give user the "has said the n-word" role to brand them for life in shame.
+			Server thisServer = event.getServer().get();
 			String[] nWords = {"nigga", "nigger", "Nigga", "Nigger"};
 			boolean nTriggered = Arrays.stream(nWords).anyMatch(content::contains);
 			if (nTriggered) {
 				try {
-					Server thisServer = event.getServer().get();
-					Role newRole = new RoleBuilder(thisServer)
-							.setName("may be racist???")
-							.setColor(Color.DARK_GRAY)
-							.setMentionable(true)
-							.create().get();
-					thisServer.addRoleToUser(msg.getUserAuthor().get(), newRole);
+					User user = msg.getUserAuthor().get();
+					Role role = RoleManager.createRole(thisServer, "may be racist???", Color.DARK_GRAY, true);
+					if (!RoleManager.hasRole(thisServer, "may be racist???", user)) {
+						thisServer.addRoleToUser(user, role);
+					}
 				}
 				catch (Exception e) {
 					e.printStackTrace();
