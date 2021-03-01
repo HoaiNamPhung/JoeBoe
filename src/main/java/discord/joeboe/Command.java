@@ -3,6 +3,7 @@ package discord.joeboe;
 import java.util.Arrays;
 
 import org.javacord.api.DiscordApi;
+import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.user.User;
 import org.javacord.api.event.message.MessageCreateEvent;
 
@@ -23,53 +24,18 @@ public class Command {
 	}
 	
 	public static void getHelp(MessageCreateEvent event) {
-		event.getChannel().sendMessage("```" + "Existing commands:\n" + 
-				"help\n" +
-				"roll #d#\n" +
-				"invite\n" +
-				"remove role\n" +
-				"\n" + 
-				"Make sure commands are typed in lowercase and are one space after " + TRIGGER + "```");
-	}
-	
-	// TODO: Parse based on before or after "d" instead. Add + and - functionality.
-	/**
-	 * Rolls a given number of dice with a given number of faces and displays the results on screen.
-	 * @param event The message event.
-	 * @param rollMsg The message written, after the command.
-	 */
-	public static void rollDice(MessageCreateEvent event, String rollMsg) {
-		// Check if rollMsg is valid.
-		if (rollMsg.length() < 3) {
-			return;
-		}
-		
-		// Calculate the rolls.
-		int numOfDie = 0;
-		int numOfFaces = 0;
-		try {
-			int dIndex = rollMsg.indexOf("d");
-			if (dIndex == -1) {
-				return;
-			}
-			numOfDie = Integer.parseInt(rollMsg.substring(0, dIndex));
-			numOfFaces = Integer.parseInt(rollMsg.substring(dIndex + 1));
-		}
-		catch (NumberFormatException e) {
-			return;
-		}
-		int[] rolls = new int[numOfDie];
-		int total = 0;
-		for (int i = 0; i < numOfDie; i++) {
-			rolls[i] = (int) (Math.random() * numOfFaces) + 1;
-			total += rolls[i];
-		}
-		
-		// Return the results.
-		String roller = event.getMessageAuthor().getDisplayName();
-		event.getChannel().sendMessage("```" + roller + " rolled " + rollMsg + " and got:\n" +
-				"Rolls: " + Arrays.toString(rolls) + "\n" +
-				"Total: " + total + "```");
+		EmbedBuilder embed = new EmbedBuilder()
+				.setDescription("Type commands in lowercase, exactly one space after *jb*.\n" + 
+								"• roll *#*d*#*\n" +
+								"• remove role ___\n " +
+								"• invite bot\n" +
+								"• help\n" +
+								"\n" +
+								"———-——-—-—-——-———\n" +
+								"Also comes with a passive n-word filter.")
+				.setFooter("Feel free to send Asyrium#2101 dumb suggestions.")
+				.setTitle("Available Commands");
+		event.getChannel().sendMessage(embed);
 	}
 	
 	/**
@@ -91,5 +57,32 @@ public class Command {
 	public static void removeRole(MessageCreateEvent event, String roleName) {
 		User user = event.getMessageAuthor().asUser().get();
 		RoleManager.removeRole(event.getServer().get(), roleName, user);
+	}
+	
+	/**
+	 * Returns instructions on how to query to remove a role.
+	 * @param event The message event.
+	 */
+	public static void getRemoveRoleHelp(MessageCreateEvent event) {
+		EmbedBuilder embed = new EmbedBuilder()
+				.setDescription("Type the following to remove a given role from yourself. In case you're embarrassed of it, or something.\n\n" +
+								"• jb remove role *rolename*");
+		event.getChannel().sendMessage(embed);
+	}
+	
+	/**
+	 * Returns instructions on how to query for a dice roll.
+	 * @param event The message event.
+	 */
+	public static void getRollHelp(MessageCreateEvent event) {
+		EmbedBuilder embed = new EmbedBuilder()
+				.setDescription("Type the following to roll *X* number of *Y*-sided die.\n\n" +
+								"• jb roll *X*d*Y*\n" +
+								"You can also add or subtract a number *Z* from the dice rolls.\n\n" +
+								"• jb roll *X*d*Y* + Z\n" +
+								"• jb roll*2*d*20*+2+2-3\n" + 
+								"———-——-—-—-——-———\n" +
+								"Note that you only actually need a space after jb; nothing else should be space-sensitive.");
+		event.getChannel().sendMessage(embed);
 	}
 }

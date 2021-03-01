@@ -23,23 +23,41 @@ public class ChatListener {
 					if (actualMsg.equals("help")) {
 						Command.getHelp(event);
 					}
-
-					if (actualMsg.length() >= 8 && actualMsg.startsWith("roll")) {
-						String rollMsg = actualMsg.substring(5);
-						Command.rollDice(event, rollMsg);
+					
+					else if (actualMsg.startsWith("roll")) {
+						String rollMsg = actualMsg.substring(4).replaceAll("\\s", "");
+						if (rollMsg.length() < 2) {
+							Command.getRollHelp(event);
+						}
+						else if ((rollMsg.charAt(0) == '#') && (rollMsg.charAt(2) == '#')) {
+							Command.getRollHelp(event);
+						}
+						else {
+							DiceRoller.rollDice(event, rollMsg);
+						}
 					}
 
-					if (actualMsg.equals("invite")) {
+					else if (actualMsg.equals("invitebot") || actualMsg.equals("invite bot")) {
 						Command.getInvite(event, api);
 					}
 					
-					if (actualMsg.startsWith("rm role") || actualMsg.startsWith("remove role")) {
+					else if (actualMsg.startsWith("rm role") || actualMsg.startsWith("remove role")) {
 						String roleName = "";
 						if (actualMsg.startsWith("rm role")) {
-							roleName = actualMsg.substring(8);
+							if (actualMsg.equals("rm role")) {
+								Command.getRemoveRoleHelp(event);
+							}
+							else {
+								roleName = actualMsg.substring(8);
+							}
 						}
 						else {
-							roleName = actualMsg.substring(12);
+							if (actualMsg.equals("remove role")) {
+								Command.getRemoveRoleHelp(event);
+							}
+							else {
+								roleName = actualMsg.substring(12);
+							}
 						}
 						Command.removeRole(event, roleName);
 					}
