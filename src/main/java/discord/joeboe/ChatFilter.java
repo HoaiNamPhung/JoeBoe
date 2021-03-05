@@ -17,7 +17,7 @@ public class ChatFilter {
 	/* Adjustable Values */
 	static String[] filteredWords = {"nigga", "nigger", "cringe", "Nigga", "Nigger", "Cringe"};
 	static String[] replacementWords = { "blackpilled", "frogpilled", "pewdiepilled", "redditpilled", "based", "micropilled",
-			"coompilled", "pandapilled", "dogpilled",
+			"coompilled", "pandapilled", "dogpilled", "abelpilled", "dementiapilled", "suspilled",
 			"darwinpilled", "junpilled", "sonampilled", "natepilled", "kadenpilled", "kanyepilled",
 			"hoaipilled", "brianpilled", "moylanpilled", "durdlepilled" };
 	static String DEFAULT_REPLACEMENT_WORD = "panda";
@@ -112,8 +112,7 @@ public class ChatFilter {
 		// Create an embed containing the filtered contents of the deleted message.
 		EmbedBuilder embed = new EmbedBuilder()
 				.setAuthor(author)
-				.setDescription(newContent)
-				.setFooter("todo: track user 'panda' count");
+				.setDescription(newContent);
 
 		// Set the embed's image to the original message's attachment image, if it exists.
 		if (attachment != null) {
@@ -133,10 +132,13 @@ public class ChatFilter {
 		
 		// Update header to show if it's user's first time saying the n-word.
 		if (!RoleManager.hasRole(oldMsg.getServer().get(), SHAME_ROLE_NAME, author.asUser().get())) {
-			String customEmoji = "🎊";
-			embed.setFooter(customEmoji + " " + author.getDisplayName() + " has finally said the n-word! " + customEmoji);
-		}
-		
+			
+			// Check for n-word.
+			if (newContent.contains(DEFAULT_REPLACEMENT_WORD)) {
+				String customEmoji = "🎊";
+				embed.setFooter(customEmoji + " " + author.getDisplayName() + " has finally said the n-word! " + customEmoji);
+			}
+		}	
 		return embed;
 	}
 	
