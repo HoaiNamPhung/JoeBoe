@@ -15,9 +15,12 @@ public class ChatFilterController {
 	
 	// Common database keys.
 	final static String SERVER_ID = "server_id";
-	final static String DEFAULT_REPLACEMENT_WORD = "default_replacement_word";
+	final static String USER_ID = "user_id";
+	final static String DEFAULT_REPLACEMENT_WORD =  "default_replacement_word";
 	final static String CHAT_FILTER_MAP = "chat_filter_map";
 	final static String SHAME_WORDS = "shame_words";
+	final static String SHAME_COUNT = "shame_count";
+	
 	
 	Database db = null;
 	
@@ -238,5 +241,34 @@ public class ChatFilterController {
 		rv &= addWordToShameWords(serverId, n1);
 		rv &= addWordToShameWords(serverId, n2);
 		return rv;
+	}
+	
+	public int getShameCount(String serverId, String userId) {
+		final String TABLE_NAME = Database.USERS_TABLE_NAME;  
+		final String ATTR_NAME = SHAME_COUNT;
+		Item dbItem = db.getItem(TABLE_NAME, SERVER_ID, serverId, USER_ID, userId);
+		if (dbItem == null) {
+			return 0;
+		}
+		return Integer.parseInt(dbItem.getString(ATTR_NAME));
+	}
+	
+	public int incrementShameCount(String serverId, String userId, int amount) {
+		final String TABLE_NAME = Database.USERS_TABLE_NAME;  
+		final String ATTR_NAME = SHAME_COUNT;
+		int count = 0;
+		Item dbItem = db.getItem(TABLE_NAME, USER_ID, userId, SERVER_ID, serverId);
+		// First shame word ever; initialize counter.
+		if (dbItem == null) {
+			count = amount;
+			db.putItem(TABLE_NAME, SERVER_ID, serverId, USER_ID, userId, SHAME_COUNT, count + "");
+		}
+		// Increment normally.
+		else {
+			count = Integer.parseInt(dbItem.getString(ATTR_NAME));
+			count += amount;
+			db.setAttribute(TABLE_NAME, SERVER_ID, serverId, USER_ID, userId, SHAME_COUNT, count + "");
+		}
+		return count;
 	}
 }

@@ -240,10 +240,12 @@ public class Database {
 	 */
 	public boolean setAttribute(String tableName, String partKey, String partVal, String sortKey, String sortVal, String attrKey, String attrVal) {
 		Table table = dynamoDB.getTable(tableName);
-		UpdateItemSpec spec = new UpdateItemSpec().withPrimaryKey(partKey, partVal)
-				.withUpdateExpression("set " + attrKey + " = :s")
-	            .withValueMap(new ValueMap().withString(":s", attrVal))
-	            .withReturnValues(ReturnValue.UPDATED_NEW);
+		UpdateItemSpec spec = (sortKey != null && sortVal != null) ? 
+				new UpdateItemSpec().withPrimaryKey(partKey, partVal, sortKey, sortVal) :
+				new UpdateItemSpec().withPrimaryKey(partKey, partVal);
+		spec.withUpdateExpression("set " + attrKey + " = :s")
+			.withValueMap(new ValueMap().withString(":s", attrVal))
+			.withReturnValues(ReturnValue.UPDATED_NEW);
         try {
             System.out.println("Attempting to update the item...");
             UpdateItemOutcome outcome = table.updateItem(spec);

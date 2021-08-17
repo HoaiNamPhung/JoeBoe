@@ -34,6 +34,7 @@ public class ChatFilter {
 		// Get the relevant data of the event.
 		String serverId = event.getServer().get().getId() + "";
 		Message msg = event.getMessage();
+		String userId = msg.getAuthor().getIdAsString();
 		String content = event.getMessageContent();
 		
 		// Ignore links to media files.
@@ -46,6 +47,7 @@ public class ChatFilter {
 		ChatFilterController cfc = new ChatFilterController();
 		Map<String, String> replacementWordMap = cfc.getChatFilter(serverId);
 		Set<String> filteredWords = replacementWordMap.keySet();
+		Set<String> shameWords = cfc.getShameWords(serverId);
 
 		// Check for filtered words.
 		boolean triggered = filteredWords.stream().anyMatch(content.toLowerCase()::contains);
@@ -55,6 +57,13 @@ public class ChatFilter {
 			
 			// Check if user said a shame word.
 			boolean isShameful = assignShameRole(event, cfc);
+			
+			// Count the number of shame words, if applicable.
+			int shameCount = 0;
+			if (isShameful) {
+				shameCount = countWordInstances(content, shameWords);
+				shameCount = cfc.incrementShameCount(serverId, userId, shameCount);
+			}
 
 			// Replace filtered words with their assigned replacement words.
 			String replacementWord = cfc.getDefaultReplacementWord(serverId);
@@ -64,7 +73,7 @@ public class ChatFilter {
 			String newContent = filterString(content, replacementWordMap, replacementWord);
 			
 			// Send the filtered message through the bot.
-			EmbedBuilder embedMsg = formatMessageAsEmbed(msg, newContent, isShameful);
+			EmbedBuilder embedMsg = formatMessageAsEmbed(msg, newContent, isShameful, shameCount);
 			event.getChannel().sendMessage(embedMsg);
 			
 			// Send any remaining attachments that weren't sent through the embed.
@@ -131,7 +140,7 @@ public class ChatFilter {
 	 * @param isShameful Whether or not the original message contained a 'shame word'.
 	 * @return Returns a decorated, embedded message with filtered contents.
 	 */
-	private static EmbedBuilder formatMessageAsEmbed(Message oldMsg, String newContent, boolean isShameful) {
+	private static EmbedBuilder formatMessageAsEmbed(Message oldMsg, String newContent, boolean isShameful, int shameCount) {
 		// Get message data.
 		MessageAuthor author = oldMsg.getAuthor();
 		MessageAttachment attachment = null;
@@ -160,15 +169,19 @@ public class ChatFilter {
 			embed.setColor(author.getRoleColor().get());
 		}
 		
-		// Update header to show if it's user's first time saying a shame word.
-		if (!RoleManager.hasRole(oldMsg.getServer().get(), SHAME_ROLE_NAME, author.asUser().get())) {
-			
-			// Check for shame word.
-			if (isShameful) {
+		// Update header to show number of times user has said a shame word.
+		if (isShameful) {
+			// First time.
+			if (!RoleManager.hasRole(oldMsg.getServer().get(), SHAME_ROLE_NAME, author.asUser().get())) {
 				String customEmoji = "🎊";
-				embed.setFooter(customEmoji + " " + author.getDisplayName() + " has finally said the n-word! " + customEmoji);
+				embed.setFooter(customEmoji + " " + author.getDisplayName() + " has finally said the forbidden word! " + customEmoji);
+			}	
+			// Repeat offender.
+			else {
+				String customEmoji = "🐼";
+				embed.setFooter(customEmoji + "Panda count: " + shameCount + " " + customEmoji);
 			}
-		}	
+		}
 		return embed;
 	}
 	
@@ -189,5 +202,24 @@ public class ChatFilter {
 			inputStr = inputStr.replaceAll("(?i)"+Pattern.quote(filteredWord), replacementWord); // (?i) = regex for case insensitive.
 		}
 		return inputStr;
+	}
+	
+	private static int countWordInstances(String text, Set<String> words) {
+		text = text.toLowerCase();
+		int count = 0;
+		
+		for (String word : words) {
+			word = word.toLowerCase();
+			int index = 0;
+			int wordLength = word.length();
+		    while(index != -1){
+		        index = text.indexOf(word, index);
+		        if (index != -1) {
+		        	text = text.substring(0, index) + text.substring(index + wordLength);
+		            count++;
+		        }
+		    }
+		}
+		return count;
 	}
 }

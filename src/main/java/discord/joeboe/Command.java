@@ -66,7 +66,7 @@ public class Command {
 		EmbedBuilder embed = new EmbedBuilder()
 				.setDescription("Type commands in lowercase, exactly one space after *jb*.\n" + 
 								"```" +
-								"• roll *#*d*#*\n" +
+								"• roll *X*d*Y*\n" +
 								"• bot invite\n" +
 								"• help\n" +
 								"• admin help\n" +
@@ -261,10 +261,30 @@ public class Command {
 								"• jb roll *X*d*Y*\n\n" +
 								"You can also add or subtract a number *Z* from the dice rolls.\n\n" +
 								"• jb roll *X*d*Y* + Z\n" +
-								"• jb roll*2*d*20*+2+2-3\n" + 
+								"• jb roll *2*d*20*+2+2-3\n" + 
 								"———-——-—-—-——-———\n" +
 								"Note that you only actually need a space after jb; nothing else should be space-sensitive.")
 				.setTitle("roll");
+		event.getChannel().sendMessage(embed);
+	}
+	
+	/**
+	 * Returns querier's shame count.
+	 * @param event The message event.
+	 */
+	public static void getShameCount(MessageCreateEvent event) {
+		// Get shame count from database.
+		ChatFilterController cfc = new ChatFilterController();
+		String serverId = event.getServer().get().getIdAsString();
+		String userId = event.getMessageAuthor().getIdAsString();
+		int shameCount = cfc.getShameCount(serverId, userId);
+		
+		// Return message.
+		String userName = event.getMessageAuthor().getDisplayName();
+		String customEmoji = "🐼";
+		EmbedBuilder embed = new EmbedBuilder()
+				.setDescription(customEmoji + " Panda count: " + shameCount + " " + customEmoji)
+				.setTitle(userName);
 		event.getChannel().sendMessage(embed);
 	}
 	

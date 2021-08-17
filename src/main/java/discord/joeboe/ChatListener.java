@@ -104,7 +104,10 @@ public class ChatListener {
 						}
 					}			
 					else if (actualMsg.startsWith("shame")) {
-						if (actualMsg.equals("shame")) {
+						if (actualMsg.equals("shame count")) {
+							Command.getShameCount(event);
+						}
+						else if (actualMsg.equals("shame")) {
 							Command.getShameWordHelp(event);
 						}
 						else {
@@ -120,7 +123,7 @@ public class ChatListener {
 							String shameWord = actualMsg.substring("rm shame".length() + 1);
 							Command.removeShameWord(event, shameWord);
 						}
-					}					
+					}
 					else if (actualMsg.startsWith("rm role")) {
 						if (actualMsg.equals("rm role")) {
 							Command.getRemoveRoleHelp(event);
