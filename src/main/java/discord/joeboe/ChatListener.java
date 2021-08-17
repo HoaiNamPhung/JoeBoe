@@ -43,6 +43,9 @@ public class ChatListener {
 					else if (actualMsg.startsWith("rm shame word")) {
 						actualMsg = actualMsg.replaceFirst("rm shame word", "rm shame");
 					}
+					else if (actualMsg.startsWith("panda count")) {
+						actualMsg = actualMsg.replaceFirst("panda count", "shame count");
+					}
 					
 					if (actualMsg.equals("info")) {
 						Command.getInfo(event);

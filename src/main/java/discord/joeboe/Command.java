@@ -67,6 +67,7 @@ public class Command {
 				.setDescription("Type commands in lowercase, exactly one space after *jb*.\n" + 
 								"```" +
 								"• roll *X*d*Y*\n" +
+								"• shame count\n" +
 								"• bot invite\n" +
 								"• help\n" +
 								"• admin help\n" +
