@@ -36,10 +36,16 @@ public class ChatFilter {
 		Message msg = event.getMessage();
 		String userId = msg.getAuthor().getIdAsString();
 		String content = event.getMessageContent();
+		boolean isMedia = false;
 		
 		// Ignore links to media files.
 		if (content.startsWith("http") && 
-				(content.endsWith(".mp4") || content.endsWith(".jpg") || content.endsWith(".png") || content.endsWith(".gif") || content.endsWith(".webm"))) {
+				(content.contains(".mp4") || content.contains(".jpg") || content.contains(".png") || content.contains(".gif") || 
+				content.contains(".webm") || content.contains(".com") || content.contains(".net") || content.contains(".io"))) {
+			isMedia = true;
+		}
+		// In case I want to expand upon media files by actually changing the file names in the future, I save it as a variable.
+		if (isMedia == true) {
 			return;
 		}
 		

@@ -12,10 +12,11 @@ public class ChatListener {
 			// Initialize database, if necessary.
 			Database.initializeServerTableContents(event.getServer().get().getId() + "");
 
-			// Check if message is a command. If it is, check if it is one of JoeBoe's
-			// existing commands.
+			// Check if something should be done based on the message.
+			ChatFilter.replaceSlurs(event);
+			
+			// Check if message is an existing command.
 			if (Command.isCommand(msg)) {
-				
 				// Get rid of the trigger and the space following it from the message.
 				if (msg.length() > 3) {
 					String actualMsg = msg.substring(Command.TRIGGER.length() + 1);
@@ -23,6 +24,9 @@ public class ChatListener {
 					// Set modifier words to their acronyms if they preface the entire command.
 					if (actualMsg.startsWith("remove")) {
 						actualMsg = actualMsg.replaceFirst("remove", "rm");
+					}
+					else if (actualMsg.startsWith("delete")) {
+						actualMsg = actualMsg.replaceFirst("delete", "rm");
 					}
 					else if (actualMsg.startsWith("add ")) {
 						actualMsg = actualMsg.replaceFirst("add ", "");
@@ -46,7 +50,17 @@ public class ChatListener {
 					else if (actualMsg.startsWith("panda count")) {
 						actualMsg = actualMsg.replaceFirst("panda count", "shame count");
 					}
-					
+					else if (actualMsg.startsWith("save media")) {
+						actualMsg = actualMsg.replaceFirst("save media", "save");
+					}
+					else if (actualMsg.startsWith("load media")) {
+						actualMsg = actualMsg.replaceFirst("load media", "load");
+					}
+					else if (actualMsg.startsWith("rm media")) {
+						actualMsg = actualMsg.replaceFirst("rm media", "rm");
+					}			
+						
+					/* General Settings and Info */
 					if (actualMsg.equals("info")) {
 						Command.getInfo(event);
 					}
@@ -70,8 +84,9 @@ public class ChatListener {
 					}
 					else if (actualMsg.equals("bot invite")) {
 						Command.getInvite(event, api);
-					}					
-					else if (actualMsg.startsWith("filter")) {
+					}	
+					/* Chat Filtering */	
+					if (actualMsg.startsWith("filter")) {
 						if (actualMsg.equals("filter")) {
 							Command.getFilterWordHelp(event);
 						}
@@ -87,7 +102,7 @@ public class ChatListener {
 							String shameWord = actualMsg.substring("filter".length() + 1, b1 - 1);
 							Command.addFilterWord(event, shameWord, replacementWord);
 						}
-					}					
+					}
 					else if (actualMsg.startsWith("rm filter")) {
 						if (actualMsg.equals("rm filter")) {
 							Command.getFilterWordHelp(event);
@@ -96,7 +111,7 @@ public class ChatListener {
 							String filterWord = actualMsg.substring("rm filter".length() + 1);
 							Command.removeFilterWord(event, filterWord);
 						}
-					}				
+					}	
 					else if (actualMsg.startsWith("default replacement")) {
 						if (actualMsg.equals("default replacement")) {
 							Command.getDefaultReplacementWordHelp(event);
@@ -136,11 +151,42 @@ public class ChatListener {
 							Command.removeRole(event, roleName);
 						}
 					}
+					/* Medialink Storage */
+					else if (actualMsg.startsWith("save")) {
+						if (actualMsg.equals("save")) {
+							Command.getMediaHelp(event);
+						}
+						else if (actualMsg.contains("[") && actualMsg.contains("]")) {
+							int b1 = actualMsg.lastIndexOf("[");
+							int b2 = actualMsg.lastIndexOf("]");
+							String key = actualMsg.substring(b1 + 1, b2);
+							String mediaName = actualMsg.substring("save".length() + 1, b1 - 1);
+							Command.saveMedia(event, mediaName, key);
+						}
+					}
+					else if (actualMsg.startsWith("load")) {
+						if (actualMsg.equals("load")) {
+							Command.getMediaHelp(event);
+						}
+						else {
+							String key = actualMsg.substring("load".length() + 1);
+							Command.loadMedia(event, key);
+						}
+					}
+					else if (actualMsg.startsWith("rm")) {
+						if (actualMsg.equals("rm")) {
+							Command.getMediaHelp(event);
+						}
+						else {
+							String key = actualMsg.substring("rm".length() + 1);
+							Command.removeMedia(event, key);
+						}
+					}
+					else if (actualMsg.equals("media")) {
+						Command.getMediaInfo(event);
+					}
 				}
 			}
-			
-			// Check if something should be done based on the message.
-			ChatFilter.replaceSlurs(event);
 		});
 	}
 }
