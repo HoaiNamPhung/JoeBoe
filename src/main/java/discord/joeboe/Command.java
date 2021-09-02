@@ -2,6 +2,7 @@ package discord.joeboe;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.javacord.api.DiscordApi;
 import org.javacord.api.entity.message.MessageAuthor;
@@ -463,7 +464,7 @@ public class Command {
 		String description = "";
 		if (isInitialized) {
 			numMediaLinks = mediaLinks.size();
-			for (String key : mediaLinks.keySet()) {
+			for (String key : new TreeSet<>(mediaLinks.keySet())) {
 				description += "*" + key + "*\n" +
 							"```\n" +
 							mediaLinks.get(key)+
